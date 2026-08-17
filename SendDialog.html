@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 12px; }
+    label { display: block; margin-top: 10px; font-weight: bold; font-size: 13px; }
+    input, textarea { width: 100%; box-sizing: border-box; margin-top: 4px; font-family: inherit; font-size: 13px; }
+    textarea { height: 140px; resize: vertical; }
+    .hint { font-size: 12px; color: #666; margin-top: 4px; }
+    button { margin-top: 14px; padding: 8px 16px; cursor: pointer; }
+    #status { margin-top: 10px; white-space: pre-wrap; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <label for="eventLabel">Event name (used to track who's already been texted)</label>
+  <input id="eventLabel" type="text" placeholder="e.g. BBQ Night 7/23">
+
+  <label for="template">Message</label>
+  <textarea id="template" placeholder="Hey {first_name}, it's Tanay! We have an event today at the house at 7pm, hope to see you there!"></textarea>
+  <div class="hint">Use {first_name} anywhere you want the PNM's first name inserted. Only sends to people who haven't already gotten this event's text — safe to click again if it's interrupted.</div>
+
+  <button onclick="send()">Send</button>
+  <div id="status"></div>
+
+  <script>
+    function send() {
+      const eventLabel = document.getElementById('eventLabel').value.trim();
+      const template = document.getElementById('template').value;
+      if (!eventLabel || !template) {
+        document.getElementById('status').innerText = 'Please fill in both fields.';
+        return;
+      }
+      document.getElementById('status').innerText = 'Sending...';
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('status').innerText = result;
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('status').innerText = 'Error: ' + err.message;
+        })
+        .sendEventBlast(eventLabel, template);
+    }
+  </script>
+</body>
+</html>
